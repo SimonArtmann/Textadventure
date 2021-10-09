@@ -1,5 +1,6 @@
 #level system, mana potion, save and load
 import random
+import ast
 
 class Item:
     def __init__(self, space):
@@ -109,6 +110,33 @@ class Player(Character):
         else:
             pass
 
+    def save(self):
+        data1 = self.hp
+        data2 = self.mana
+        data3 = self.required_xp
+        data4 = self.all_xp
+        data5 = self.level
+        data6 = self.items
+        data7 = self.name
+        data = [data1, data2, data3, data4, data5, data6, data7]
+        data = str(data)
+        saveFile = open("saveFile.txt", "w")
+        saveFile.write(data)
+        saveFile.close()
+        print("You saved your data.")
+    
+    def load(self):
+        newData_file = open("savefile.txt", "r")
+        newData = newData_file.read()
+        newData_file.close()
+        newData = ast.literal_eval(newData)
+        self.hp = newData[0]
+        self.mana = newData[1]
+        self.required_xp = newData[2]
+        self.all_xp = newData[3]
+        self.level = newData [4]
+        self.items = newData[5]
+        self.name = newData [6]
 
 class Field:
     def __init__(self, enemies):
@@ -287,6 +315,11 @@ def block(p, m):
 def show_xp_and_level(p, m):
     p.show_xp_and_level()
 
+def save(p, m):
+    p.save()
+
+def load(p, m):
+    p.load()
 Commands = {
     "help": print_help,
     "quit": quit_game,
@@ -300,6 +333,8 @@ Commands = {
     "use_healthpotion": use_healthpotion,
     "run_away": run_away,
     "show_xp_and_level": show_xp_and_level,
+    "save": save,
+    "load": load,
 }
 
 if __name__=="__main__":
