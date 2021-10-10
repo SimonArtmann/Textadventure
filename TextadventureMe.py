@@ -1,4 +1,4 @@
-#level system, mana potion, save and load
+#map daten saven 
 import random
 import ast
 
@@ -10,6 +10,11 @@ class HealthPotion(Item):
     def __init__(self, regenerated_health):
         Item.__init__(self, 1)
         self.regenerated_health = regenerated_health
+
+class ManaPotion(Item):
+    def __init__(self, regenerated_mana):
+        Item.__init__(self, 1)
+        self.regenerated_mana = regenerated_mana
 
 class Character:
     def __init__(self, hp, ad, name, xp):
@@ -64,13 +69,14 @@ class Player(Character):
     items = []
     required_xp = 100
     level = 0
-    def __init__(self, name, hp, ad, regenerated_health, mana, all_xp):
+    def __init__(self, name, hp, ad, regenerated_health, mana, all_xp, regenerated_mana):
         Character.__init__(self, hp, ad, name, 0)
         self.max_hp = hp
         self.regenerated_health = regenerated_health
         self.mana = mana
         self.max_mana = mana
         self.all_xp = all_xp
+        self.regenerated_mana = regenerated_mana
 
     def die(self):
         exit ("Wasted. Try again.")
@@ -81,20 +87,45 @@ class Player(Character):
 
     def use_healthpotion(self):
         try:
-            if self.items[0] == "HealthPotion":
-                if int(self.hp <= 400):
-                    self.hp = self.hp + self.regenerated_health
-                    print ("You now have " + str(self.hp)  + " hp left.")
-                    self.items.remove("HealthPotion")
-                else:
-                    if self.hp == self.max_hp:
-                        print("You are already at full health.")
-                    else:
-                        self.hp = self.max_hp
+            for i in range(len(self.items)):
+                if self.items[i] == "HealthPotion":
+                    if int(self.hp <= 400):
+                        self.hp = self.hp + self.regenerated_health
+                        print ("You now have " + str(self.hp)  + " hp left.")
                         self.items.remove("HealthPotion")
-                        print ("You now have " + str(self.max_hp) + " left.")
+                        break
+                    else:
+                        if self.hp == self.max_hp:
+                            print("You are already at full health.")
+                            break
+                        else:
+                            self.hp = self.max_hp
+                            self.items.remove("HealthPotion")
+                            print ("You now have " + str(self.max_hp) + " left.")
+                            break
         except IndexError:
             print ("You don't have a HealthPotion in your inventory.")
+   
+    def use_manapotion(self):
+        try:
+            for i in range(len(self.items)):
+                if self.items[i] == "ManaPotion":
+                    if int(self.mana <= 75):
+                        self.mana = self.mana + self.regenerated_mana
+                        print ("You now have " + str(self.mana)  + " mana left.")
+                        self.items.remove("ManaPotion")
+                        break
+                    else:
+                        if self.mana == self.max_mana:
+                            print("You are already at full mana.")
+                            break
+                        else:
+                            self.mana = self.max_mana
+                            self.items.remove("ManaPotion")
+                            print ("You now have " + str(self.max_mana) + " left.")
+                            break
+        except IndexError:
+            print ("You don't have a ManaPotion in your inventory.")
 
     def show_xp_and_level(self):
         print ("You have accumulated " + str(self.all_xp) + " xp.")
@@ -118,7 +149,9 @@ class Player(Character):
         data5 = self.level
         data6 = self.items
         data7 = self.name
-        data = [data1, data2, data3, data4, data5, data6, data7]
+        data8 = map.x
+        data9 = map.y
+        data = [data1, data2, data3, data4, data5, data6, data7, data8, data9]
         data = str(data)
         saveFile = open("saveFile.txt", "w")
         saveFile.write(data)
@@ -137,7 +170,9 @@ class Player(Character):
         self.level = newData [4]
         self.items = newData[5]
         self.name = newData [6]
-
+        map.x = newData[7]
+        map.y = newData[8]
+        
 class Field:
     def __init__(self, enemies):
         self.enemies = enemies
@@ -164,10 +199,10 @@ class Field:
             return Field([Goblin(), Giant()])
 
 class Map:
-    def __init__(self, width, height):
-        self.state = []
-        self.x = 0
-        self.y = 0
+    def __init__(self, width, height, state, x, y):
+        self.state = state
+        self.x = x
+        self.y = y
         for i in range(width):
             fields = []
             for j in range(height):
@@ -179,6 +214,9 @@ class Map:
 
     def get_enemies(self):
         return self.state[self.x] [self.y].enemies
+    
+    def get_state(self):
+        print (self.state)
 
     def forward (self):
         if self.x == len(self.state) - 1:
@@ -216,12 +254,6 @@ def left (m, p):
 def backwards(m, p):
     map.backwards()
 
-def save():
-    pass
-
-def load():
-    pass
-
 def quit_game(p, m):
     print ("Suicide is a BADASS, that's why you decide to commit suicide and leave this world. " )
     exit (0)
@@ -238,6 +270,7 @@ def fight(p, m):
         attack(p, m)
         if enemies[0].is_dead():
             add_healthpotion_to_inventory(p, m)
+            add_manapotion_to_inventory(p, m)
             p.all_xp = p.all_xp + enemies[0].xp
             p.level_up()
             enemies.remove(enemies[0])
@@ -256,6 +289,9 @@ def rest(p, m):
 def use_healthpotion(p, m):
     p.use_healthpotion()
 
+def use_manapotion(p, m):
+    p.use_manapotion()
+
 def run_away(p, m):
     enemies = m.get_enemies()
     for i in enemies:
@@ -264,11 +300,22 @@ def run_away(p, m):
 def add_healthpotion_to_inventory(p, m):
     rand = random.randint(0, 1)
     if rand == 0:
-        print ("It dropped nothing. ")
+        pass
     elif rand == 1:
             if len(p.items) < 11:
                 p.items.append("HealthPotion")
                 print ("It dropped a HealthPotion.")
+            if len(p.items) == 10:
+                print ("Your inventory is full.")
+
+def add_manapotion_to_inventory(p, m):
+    rand = random.randint(0, 1)
+    if rand == 0:
+        pass
+    elif rand == 1:
+            if len(p.items) < 11:
+                p.items.append("ManaPotion")
+                print ("It dropped a ManaPotion.")
             if len(p.items) == 10:
                 print ("Your inventory is full.")
 
@@ -335,12 +382,13 @@ Commands = {
     "show_xp_and_level": show_xp_and_level,
     "save": save,
     "load": load,
+    "use_manapotion": use_manapotion,
 }
 
 if __name__=="__main__":
     name = input ("Enter your name: ")
-    p = Player (name, 500, 100, 100, 100, 0)
-    map = Map(5, 5)
+    p = Player (name, 500, 100, 100, 100, 0, 25)
+    map = Map(5, 5, [], 0, 0)
     print ("(type help to list the commands available)\n")
     while True:
         command = input (">").lower().split(" ")
