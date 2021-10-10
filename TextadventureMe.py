@@ -13,10 +13,10 @@ class HealthPotion(Item):
 
 class Character:
     def __init__(self, hp, ad, name, xp):
-        self.hp = hp
-        self.ad = ad
-        self.name = name
-        self.xp = xp
+        self.hp =  hp
+        self.ad =  ad
+        self.name =  name
+        self.xp =  xp
 
     def get_hit(self, ad):
         self.hp = self.hp - ad
