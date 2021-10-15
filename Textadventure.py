@@ -6,9 +6,14 @@ class Item:
     def __init__(self, space):
         self.space = space
 
+class Sword(Item):
+    def __init__(self, damage):
+        Item.__init__(self, 1)
+        self.damage = 100
+
 class HealthPotion(Item):
-    def __init__(self, regenerated_health):
-        Item.__init__(self, 1)   
+    def __init__(self, regenerated_health):  
+        Item.__init__(self, 1)
         self.regenerated_health = regenerated_health
 
 class ManaPotion(Item):
@@ -69,7 +74,8 @@ class Chunk(Character):
         Character.__init__(self, 1000, 30, "Chunk", 70)
 
 class Player(Character):
-    items = []
+    items = ["Sword"]
+    sword_durability = 15
     required_xp = 100
     level = 0
     def __init__(self, name, hp, ad, mana, all_xp):
@@ -136,6 +142,7 @@ class Player(Character):
         str(self.required_xp - self.all_xp) + " xp more to level up.")
 
     def level_up(self):
+        sword = Sword(100)
         hprand = random.randint(50, 100)
         attackmanarand = random.randint(10, 40)
         if self.all_xp >= self.required_xp:
@@ -150,7 +157,7 @@ class Player(Character):
                 self.max_hp = self.max_hp + hprand
             elif upgrade == 'attack':
                 self.ad = self.ad + attackmanarand
-                print(self.ad)
+                sword.damage = sword.damage + attackmanarand
             else:
                 print ('Not a correct input! No upgrade for you BITCH!')
 
@@ -181,6 +188,9 @@ class Player(Character):
         self.name = newData [6]
         Map.x = newData[7]
         Map.y = newData[8]
+
+    def show_durability(self):
+        print ("Your sword has " + str(self.sword_durability) + " attacks left.")
 
 class Field:
     def __init__(self, enemies):
@@ -333,10 +343,23 @@ def add_healthpotion_to_inventory(p, m):
                 print ("Your inventory is full.")
 
 def attack(p, m):
+    sword = Sword(100)
     enemies = m.get_enemies()
     answer = input ("With what do you want to attack? (auto_attack, firestorm, thunderstorm) ")
     if answer == "auto_attack":
-        enemies[0].get_hit(p.ad)
+        for i in range(len(p.items)):
+            if p.items[i] == "Sword":
+                answer2 = input("With what? (hand, sword) ")
+                if answer2 == "sword":
+                    enemies[0].get_hit(sword.damage)
+                    p.sword_durability = p.sword_durability - 1
+                    if p.sword_durability == 0:
+                        p.items.remove("Sword")
+                        print("Your sword broke.")
+                else:
+                    enemies[0].get_hit(p.ad)
+            else:
+                enemies[0].get_hit(p.ad)
     elif answer == "firestorm":
         if p.mana >= 10:
             enemies[0].get_hit_by_firestorm(p.ad)
@@ -381,6 +404,9 @@ def save(p, m):
 def load(p, m):
     p.load()
 
+def show_durability(p, m):
+    p.show_durability()
+
 Commands = {
     "help": print_help,
     "quit": quit_game,
@@ -397,11 +423,12 @@ Commands = {
     "show_xp_and_level": show_xp_and_level,
     "save": save,
     "load": load,
+    "show_durability": show_durability,
 }
 
 if __name__=="__main__":
     name = input ("Enter your name: ")
-    p = Player (name, 500, 100, 100, 0)
+    p = Player (name, 500, 30, 100, 0)
     map = Map(5, 5)
     print ("(type help to list the commands available)\n")
     while True:
