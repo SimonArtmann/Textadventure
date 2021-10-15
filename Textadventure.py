@@ -37,7 +37,7 @@ class Character:
     def get_hit_by_firestorm(self, ad):
         rand1 = random.randint(0, 1)
         rand2 = random.randint(1, 7)
-        self.hp = self.hp - ad // 100 * 250
+        self.hp = self.hp - 250
         if rand1 == 0:
             print (str(self.name) + " was burned!")
             for i in range(1, rand2):
@@ -48,7 +48,7 @@ class Character:
             self.die()
 
     def get_hit_by_thunderstorm(self, ad):
-        self.hp = self.hp - ad // 100 * 250
+        self.hp = self.hp - 250
         if self.hp <= 0:
             self.die()
 
@@ -136,20 +136,24 @@ class Player(Character):
         str(self.required_xp - self.all_xp) + " xp more to level up.")
 
     def level_up(self):
+        hprand = random.randint(50, 100)
+        attackmanarand = random.randint(10, 40)
         if self.all_xp >= self.required_xp:
-            self.required_xp = self.all_xp + self.required_xp*1.5
             self.required_xp = round(self.required_xp, 2)
+            self.required_xp = self.all_xp + self.required_xp * 1.5
             self.level = self.level + 1
-            self.max_mana = self.max_mana * 1.3
-            self.max_mana = round(self.max_mana, 2)
-            self.max_hp = self.max_hp * 1.3
-            self.max_hp = round(self.max_hp, 2)
-            self.ad = self.ad * 1.3
-            self.ad = round(self.ad, 2)
             print ("You have reached level " + str(self.level) + "!")
-            print ("Your new max hp stat is: " + str(self.max_hp))
-            print ("Your new mana stat is: " + str(self.max_mana))
-            print ("Your new attack damage stat is: " + str(self.ad))
+            upgrade = input('Which stat do you want to upgrade? (attack, hp, mana) ')
+            if upgrade == 'mana':
+                self.mana = self.mana + attackmanarand
+            elif upgrade == 'hp':
+                self.max_hp = self.max_hp + hprand
+            elif upgrade == 'attack':
+                self.ad = self.ad + attackmanarand
+                print(self.ad)
+            else:
+                print ('Not a correct input! No upgrade for you BITCH!')
+
         else:
             pass
 
