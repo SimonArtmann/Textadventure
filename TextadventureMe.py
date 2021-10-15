@@ -29,10 +29,10 @@ class Character:
     def die(self):
         print (self.name + " died.")
 
-    def get_hit_by_firestorm(self):
+    def get_hit_by_firestorm(self, ad):
         rand1 = random.randint(0, 1)
         rand2 = random.randint(1, 7)
-        self.hp = self.hp - 250
+        self.hp = self.hp - ad // 100 * 250
         if rand1 == 0:
             print (str(self.name) + " was burned!")
             for i in range(1, rand2):
@@ -42,8 +42,8 @@ class Character:
         if self.hp <= 0:
             self.die()
 
-    def get_hit_by_thunderstorm(self):
-        self.hp = self.hp - 250
+    def get_hit_by_thunderstorm(self, ad):
+        self.hp = self.hp - ad // 100 * 250
         if self.hp <= 0:
             self.die()
 
@@ -59,6 +59,9 @@ class Giant(Character):
     def __init__(self):
         Character.__init__(self, 500, 50, "Giant", 50)
 
+class Chunk(Character):
+    def __init__(self):
+        Character.__init__(self, 1000, 30, "Chunk", 70)
 
 class Player(Character):
     items = []
@@ -106,6 +109,9 @@ class Player(Character):
             self.required_xp = self.all_xp + self.required_xp*1.5
             self.required_xp = round(self.required_xp, 2)
             self.level = self.level + 1
+            self.mana = self.mana * 1.3
+            self.max_hp = self.max_hp * 1.3
+            self.ad = self.ad * 1.3
             print ("You have reached level " + str(self.level) + "!")
         else:
             pass
@@ -279,13 +285,13 @@ def attack(p, m):
         enemies[0].get_hit(p.ad)
     elif answer == "firestorm":
         if p.mana >= 10:
-            enemies[0].get_hit_by_firestorm()
+            enemies[0].get_hit_by_firestorm(p.ad)
             p.mana = p.mana - 10
         else:
             print("You don't have enough mana. ")
     elif answer == "thunderstorm":
         if p.mana >= 10:
-            enemies[0].get_hit_by_thunderstorm()
+            enemies[0].get_hit_by_thunderstorm(p.ad)
             p.mana = p.mana - 10
         else:
             print ("You don't have enough mana. ")
