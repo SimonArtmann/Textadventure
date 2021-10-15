@@ -22,14 +22,16 @@ class ManaPotion(Item):
         self.regenerated_mana = regenerated_mana
 
 class Character:
-    def __init__(self, hp, ad, name, xp):
+    def __init__(self, hp, ad, name, xp, defense, magic_defense):
         self.hp = hp
         self.ad = ad
         self.name = name
         self.xp = xp
+        self.defense = defense
+        self.magic_defense = magic_defense
 
     def get_hit(self, ad):
-        self.hp = self.hp - ad
+        self.hp = self.hp + self.defense - ad
         if self.hp <= 0:
             self.die()
 
@@ -42,7 +44,7 @@ class Character:
     def get_hit_by_firestorm(self, ad):
         rand1 = random.randint(0, 1)
         rand2 = random.randint(1, 7)
-        self.hp = self.hp - 250
+        self.hp = self.hp + self.magic_defense - 250
         if rand1 == 0:
             print (str(self.name) + " was burned!")
             for i in range(1, rand2):
@@ -53,33 +55,33 @@ class Character:
             self.die()
 
     def get_hit_by_thunderstorm(self, ad):
-        self.hp = self.hp - 250
+        self.hp = self.hp + self.magic_defense - 250
         if self.hp <= 0:
             self.die()
 
 class Goblin(Character):
     def __init__(self):
-        Character.__init__(self, 100, 10, "Goblin", 10)
+        Character.__init__(self, 100, 10, "Goblin", 10, 0, 0)
 
 class Ork(Character):
     def __init__(self):
-        Character.__init__(self, 300, 30, "Ork", 30)
+        Character.__init__(self, 300, 30, "Ork", 30, 10, 0)
 
 class Giant(Character):
     def __init__(self):
-        Character.__init__(self, 500, 50, "Giant", 50)
+        Character.__init__(self, 500, 50, "Giant", 50, 30, 0)
 
 class Chunk(Character):
     def __init__(self):
-        Character.__init__(self, 1000, 30, "Chunk", 70)
+        Character.__init__(self, 1000, 30, "Chunk", 70, 50, 10)
 
 class Player(Character):
     items = ["Sword"]
-    sword_durability = 15
+    sword_durability = 25
     required_xp = 100
     level = 0
     def __init__(self, name, hp, ad, mana, all_xp):
-        Character.__init__(self, hp, ad, name, 0)
+        Character.__init__(self, hp, ad, name, 0, 0, 0)
         self.max_hp = hp
         self.mana = mana
         self.max_mana = mana
@@ -143,21 +145,26 @@ class Player(Character):
 
     def level_up(self):
         sword = Sword(100)
-        hprand = random.randint(50, 100)
-        attackmanarand = random.randint(10, 40)
+        hprand = random.randint(20, 50)
+        attackrand = random.randint(5, 25)
+        manarand = random.randint(5, 15)
+        defenserand= random.randint(3, 8)
         if self.all_xp >= self.required_xp:
             self.required_xp = round(self.required_xp, 2)
             self.required_xp = self.all_xp + self.required_xp * 1.5
             self.level = self.level + 1
             print ("You have reached level " + str(self.level) + "!")
-            upgrade = input('Which stat do you want to upgrade? (attack, hp, mana) ')
+            upgrade = input('Which stat do you want to upgrade? (attack, hp, mana, defense) ')
             if upgrade == 'mana':
-                self.mana = self.mana + attackmanarand
+                self.mana = self.mana + manarand
             elif upgrade == 'hp':
                 self.max_hp = self.max_hp + hprand
             elif upgrade == 'attack':
-                self.ad = self.ad + attackmanarand
-                sword.damage = sword.damage + attackmanarand
+                self.ad = self.ad + attackrand
+                sword.damage = sword.damage + attackrand
+            elif upgrade == 'defense':
+                self.defense = self.defense + defenserand
+                self.magic_defense = self.magic_defense + defenserand
             else:
                 print ('Not a correct input! No upgrade for you BITCH!')
 
@@ -191,6 +198,15 @@ class Player(Character):
 
     def show_durability(self):
         print ("Your sword has " + str(self.sword_durability) + " attacks left.")
+
+    def show_stats(self):
+        print('Your hp stat is: ' + str(self.max_hp))
+        print('Your mana stat is: ' + str(self.max_mana))
+        print('Your attack stat is: ' + str(self.ad))
+        print('Your defense stat is: ' + str(self.defense))
+        print('Your magic defense stat is: ' + str(self.magic_defense))
+
+        
 
 class Field:
     def __init__(self, enemies):
@@ -407,6 +423,9 @@ def load(p, m):
 def show_durability(p, m):
     p.show_durability()
 
+def show_stats(p, m):
+    p.show_stats()
+
 Commands = {
     "help": print_help,
     "quit": quit_game,
@@ -424,6 +443,7 @@ Commands = {
     "save": save,
     "load": load,
     "show_durability": show_durability,
+    "show_stats": show_stats,
 }
 
 if __name__=="__main__":
