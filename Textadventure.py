@@ -206,8 +206,6 @@ class Player(Character):
         print('Your defense stat is: ' + str(self.defense))
         print('Your magic defense stat is: ' + str(self.magic_defense))
 
-        
-
 class Field:
     def __init__(self, enemies):
         self.enemies = enemies
@@ -215,6 +213,7 @@ class Field:
     def print_state(self):
         print ("You have " + str(p.hp) + " hp and " + str(p.mana) + " mana.")
         print ("Your inventory: " + str(p.items))
+        print ("Your current position on the map is: " + str(map.x) + ", " + str(map.y))
         print ("You look around and see ")
         for i in self.enemies:
             print (i.name)
