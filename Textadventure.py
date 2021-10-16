@@ -1,4 +1,4 @@
-#Sword, Shield
+#Sword + equip
 import random
 import ast
 
@@ -71,7 +71,7 @@ class Chunk(Character):
         Character.__init__(self, 1000, 30, "Chunk", 70, 50, 10)
 
 class Player(Character):
-    items = []
+    items = ["Sword"]
     required_xp = 100
     level = 0
     def __init__(self, name, hp, ad, mana, all_xp):
@@ -194,6 +194,15 @@ class Player(Character):
         print('Your attack stat is: ' + str(self.ad))
         print('Your defense stat is: ' + str(self.defense))
         print('Your magic defense stat is: ' + str(self.magic_defense))
+
+    def equip(self):
+        answer = input("What do you want to equip? ")
+        if answer == "Sword":
+            for i in range(len(self.items)):
+                if self.items[i] == "Sword":
+                    p.items.remove("Sword")
+                    self.ad = 100
+                    return self.ad
 
 class Field:
     def __init__(self, enemies):
@@ -395,6 +404,9 @@ def show_durability(p, m):
 def show_stats(p, m):
     p.show_stats()
 
+def equip(p, m):
+    p.equip()
+
 Commands = {
     "help": print_help,
     "quit": quit_game,
@@ -411,11 +423,12 @@ Commands = {
     "save": save,
     "load": load,
     "show_stats": show_stats,
+    "equip": equip,
 }
 
 if __name__=="__main__":
     name = input ("Enter your name: ")
-    p = Player (name, 500, 30, 100, 0)
+    p = Player (name, 500, 50, 100, 0)
     map = Map (6, 6)
     print ("(type help to list the commands available)\n")
     while True:
