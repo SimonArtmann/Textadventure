@@ -6,11 +6,6 @@ class Item:
     def __init__(self, space):
         self.space = space
 
-class Sword(Item):
-    def __init__(self, damage):
-        Item.__init__(self, 1)
-        self.damage = 100
-
 class HealthPotion(Item):
     def __init__(self, regenerated_health):  
         Item.__init__(self, 1)
@@ -76,8 +71,7 @@ class Chunk(Character):
         Character.__init__(self, 1000, 30, "Chunk", 70, 50, 10)
 
 class Player(Character):
-    items = ["Sword"]
-    sword_durability = 25
+    items = []
     required_xp = 100
     level = 0
     def __init__(self, name, hp, ad, mana, all_xp):
@@ -144,7 +138,6 @@ class Player(Character):
         str(self.required_xp - self.all_xp) + " xp more to level up.")
 
     def level_up(self):
-        sword = Sword(100)
         hprand = random.randint(20, 50)
         attackrand = random.randint(5, 25)
         manarand = random.randint(5, 15)
@@ -161,7 +154,6 @@ class Player(Character):
                 self.max_hp = self.max_hp + hprand
             elif upgrade == 'attack':
                 self.ad = self.ad + attackrand
-                sword.damage = sword.damage + attackrand
             elif upgrade == 'defense':
                 self.defense = self.defense + defenserand
                 self.magic_defense = self.magic_defense + defenserand
@@ -172,7 +164,7 @@ class Player(Character):
             pass
 
     def save(self):
-        map = Map(5, 5)
+        map = Map(6, 6)
         data = [self.hp, self.mana, self.required_xp, self.all_xp, self.level, 
         self.items, self.name, map.x, map.y]
         data = str(data)
@@ -195,9 +187,6 @@ class Player(Character):
         self.name = newData [6]
         Map.x = newData[7]
         Map.y = newData[8]
-
-    def show_durability(self):
-        print ("Your sword has " + str(self.sword_durability) + " attacks left.")
 
     def show_stats(self):
         print('Your hp stat is: ' + str(self.max_hp))
@@ -287,21 +276,12 @@ def left (m, p):
 def backwards(m, p):
     map.backwards()
 
-def save():
-    pass
-
-def load():
-    pass
-
 def quit_game(p, m):
     print ("Suicide is a BADASS, that's why you decide to commit suicide and leave this world. " )
     exit (0)
 
 def print_help(p, m):
         print(Commands.keys())
-
-def pickup(p, m):
-    pass
 
 def fight(p, m):
     enemies = m.get_enemies()
@@ -358,35 +338,25 @@ def add_healthpotion_to_inventory(p, m):
                 print ("Your inventory is full.")
 
 def attack(p, m):
-    sword = Sword(100)
     enemies = m.get_enemies()
     answer = input ("With what do you want to attack? (auto_attack, firestorm, thunderstorm) ")
     if answer == "auto_attack":
-        for i in range(len(p.items)):
-            if p.items[i] == "Sword":
-                answer2 = input("With what? (hand, sword) ")
-                if answer2 == "sword":
-                    enemies[0].get_hit(sword.damage)
-                    p.sword_durability = p.sword_durability - 1
-                    if p.sword_durability == 0:
-                        p.items.remove("Sword")
-                        print("Your sword broke.")
-                else:
-                    enemies[0].get_hit(p.ad)
-            else:
-                enemies[0].get_hit(p.ad)
+        enemies[0].get_hit(p.ad)
+    
     elif answer == "firestorm":
         if p.mana >= 10:
             enemies[0].get_hit_by_firestorm(p.ad)
             p.mana = p.mana - 10
         else:
             print("You don't have enough mana. ")
+    
     elif answer == "thunderstorm":
         if p.mana >= 10:
             enemies[0].get_hit_by_thunderstorm(p.ad)
             p.mana = p.mana - 10
         else:
             print ("You don't have enough mana. ")
+    
     else:
         print ("That's not a correct input.")
         pass
@@ -397,7 +367,7 @@ def block(p, m):
     answer = input ("Do you want to block? ")
     if answer == "yes":
         if rand == 0:
-            pass
+            print("You blocked all incoming attacks.")
         else:
             for i in enemies:
                 print ("You are Nobb and fail to block. ")
@@ -428,7 +398,6 @@ def show_stats(p, m):
 Commands = {
     "help": print_help,
     "quit": quit_game,
-    "pickup": pickup,
     "forward": forward,
     "right": right,
     "left": left,
@@ -441,14 +410,13 @@ Commands = {
     "show_xp_and_level": show_xp_and_level,
     "save": save,
     "load": load,
-    "show_durability": show_durability,
     "show_stats": show_stats,
 }
 
 if __name__=="__main__":
     name = input ("Enter your name: ")
     p = Player (name, 500, 30, 100, 0)
-    map = Map (5, 5)
+    map = Map (6, 6)
     print ("(type help to list the commands available)\n")
     while True:
         command = input (">").lower().split(" ")
