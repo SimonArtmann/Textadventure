@@ -1,4 +1,4 @@
-#Sword + equip
+#gleich wie Firerod, noch Lightningrod dazu
 import random
 import ast
 
@@ -71,7 +71,8 @@ class Chunk(Character):
         Character.__init__(self, 1000, 30, "Chunk", 70, 50, 10)
 
 class Player(Character):
-    items = ["Sword"]
+    items = ["Sword", "Firerod"]
+    equipped_items = []
     required_xp = 100
     level = 0
     def __init__(self, name, hp, ad, mana, all_xp):
@@ -200,9 +201,18 @@ class Player(Character):
         if answer == "Sword":
             for i in range(len(self.items)):
                 if self.items[i] == "Sword":
-                    p.items.remove("Sword")
+                    self.items.remove("Sword")
                     self.ad = 100
-                    return self.ad
+                    print ("You have succesfully equipped the sword.")
+        elif answer == "Firerod":
+            for i in range(len(self.items)):
+                if self.items[i] == "Firerod":
+                    self.items.remove("Firerod")
+                    self.equipped_items.append("Firerod")
+                    print ("You have succesfully equipped the firerod.")
+        else:
+            print ("You dont have that in your inventory.")
+            pass
 
 class Field:
     def __init__(self, enemies):
@@ -298,6 +308,7 @@ def fight(p, m):
         attack(p, m)
         if enemies[0].is_dead():
             add_healthpotion_to_inventory(p, m)
+            add_manapotion_to_inventory(p, m)
             p.all_xp = p.all_xp + enemies[0].xp
             p.level_up()
             enemies.remove(enemies[0])
@@ -325,50 +336,62 @@ def run_away(p, m):
         enemies.remove(i)
 
 def add_healthpotion_to_inventory(p, m):
-    rand = random.randint(0, 1)
+    rand = random.randint(0, 3)
     if rand == 0:
+        if len(p.items) < 11:
+            p.items.append("HealthPotion")
+            print ("It dropped a Health Potion.")
+        if len(p.items) == 10:
+            print ("Your inventory is full.")
+    else:
         pass
-    elif rand == 1:
-            if len(p.items) < 11:
-                p.items.append("HealthPotion")
-                print ("It dropped a Health Potion.")
-            if len(p.items) == 10:
-                print ("Your inventory is full.")
 
-def add_healthpotion_to_inventory(p, m):
-    rand = random.randint(0, 1)
+def add_manapotion_to_inventory(p, m):
+    rand = random.randint(0, 3)
     if rand == 0:
+        if len(p.items) < 11:
+            p.items.append("ManaPotion")
+            print ("It dropped a Mana Potion.")
+        if len(p.items) == 10:
+            print ("Your inventory is full.")
+    else:
         pass
-    elif rand == 1:
-            if len(p.items) < 11:
-                p.items.append("ManaPotion")
-                print ("It dropped a Mana Potion.")
-            if len(p.items) == 10:
-                print ("Your inventory is full.")
+
+def add_sword_to_inventory(p, m):
+    rand = random.randint(0, 10)
+    if rand == 0:
+        if len(p.items) < 11:
+            p.items.append("Sword")
+            print ("It dropped a Sword.")
+        if len(p.items) == 10:
+            print ("Your inventory is full.")
+    else:
+        pass
 
 def attack(p, m):
     enemies = m.get_enemies()
-    answer = input ("With what do you want to attack? (auto_attack, firestorm, thunderstorm) ")
-    if answer == "auto_attack":
-        enemies[0].get_hit(p.ad)
-    
-    elif answer == "firestorm":
-        if p.mana >= 10:
-            enemies[0].get_hit_by_firestorm(p.ad)
-            p.mana = p.mana - 10
+    if not p.equipped_items:
+        answer1 = input ("With what do you want to attack (auto_attack) ")
+        if answer1 == "auto_attack":
+            enemies[0].get_hit(p.ad)
         else:
-            print("You don't have enough mana. ")
-    
-    elif answer == "thunderstorm":
-        if p.mana >= 10:
-            enemies[0].get_hit_by_thunderstorm(p.ad)
-            p.mana = p.mana - 10
-        else:
-            print ("You don't have enough mana. ")
-    
-    else:
-        print ("That's not a correct input.")
-        pass
+            print ("That's not a correct input.")
+            pass
+        
+    for i in range(len(p.equipped_items)): 
+        if p.equipped_items[i] == "Firerod":
+            answer2 = input ("With what do you want to attack? (auto_attack, firestorm) ")
+            if answer2 == "firestorm":  
+                if p.mana >= 10:
+                    enemies[0].get_hit_by_firestorm(p.ad)
+                    p.mana = p.mana - 10
+                else:
+                    print("You don't have enough mana. ")
+            elif answer2 == "auto_attack":
+                enemies[0].get_hit(p.ad)
+            else:
+                print ("That's not a correct input. ")
+                pass
 
 def block(p, m):
     rand = random.randint(0, 1)
