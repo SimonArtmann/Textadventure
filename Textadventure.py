@@ -448,7 +448,7 @@ Commands = {
 if __name__=="__main__":
     name = input ("Enter your name: ")
     p = Player (name, 500, 30, 100, 0)
-    map = Map(5, 5)
+    map = Map (5, 5)
     print ("(type help to list the commands available)\n")
     while True:
         command = input (">").lower().split(" ")
