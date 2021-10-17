@@ -1,4 +1,4 @@
-#gleich wie Firerod, noch Lightningrod dazu
+#Thunderrod equip bug fixen, block bugs fixen 
 import random
 import ast
 
@@ -71,7 +71,7 @@ class Chunk(Character):
         Character.__init__(self, 1000, 30, "Chunk", 70, 50, 10)
 
 class Player(Character):
-    items = ["Sword", "Firerod"]
+    items = []
     equipped_items = []
     required_xp = 100
     level = 0
@@ -198,22 +198,45 @@ class Player(Character):
 
     def equip(self):
         answer = input("What do you want to equip? ")
-        if answer == "Sword":
-            for i in range(len(self.items)):
-                if self.items[i] == "Sword":
-                    self.items.remove("Sword")
-                    self.ad = 100
-                    print ("You have succesfully equipped the sword.")
+        if answer == "Sword":   
+            if self.items[0] != "Sword":
+                for i in range(len(self.items) - 1):
+                    if self.items[i] == "Sword" or self.items[0] == "Sword":
+                        print ("You have succesfully equipped the sword.")
+                        self.items.remove("Sword")
+                        self.ad = 100
+            elif self.items[0] == "Sword":
+                print ("You have successfully equipped the sword.")
+                self.items.remove("Sword")
+                self.ad = 100
+
+        elif answer == "Thunderrod":
+            if self.items[0] != "Thunderrod":    
+                for i in range(len(self.items) - 1):
+                    if self.items[i] == "Thunderrod" or self.items[0] == "Thunderrod":
+                        self.items.remove("Thunderrod")
+                        self.equipped_items.append("Thunderrod")
+                        print ("You have successfully equipped the thunderrod.")
+            elif self.items[0] == "Thunderrod":
+                self.items.remove("Thunderrod")
+                self.equipped_items.append("Thunderrod")
+                print ("You have successfully equipped the thunderrod.")
+
         elif answer == "Firerod":
-            for i in range(len(self.items)):
-                if self.items[i] == "Firerod":
-                    self.items.remove("Firerod")
-                    self.equipped_items.append("Firerod")
-                    print ("You have succesfully equipped the firerod.")
+            if self.items[0] != "Firerod":    
+                for i in range(len(self.items) - 1):
+                    if self.items[i] == "Firerod" or self.items[0] == "Firerod":
+                        self.items.remove("Firerod")
+                        self.equipped_items.append("Firerod")
+                        print ("You have successfully equipped the firerod.")
+            elif self.items[0] == "Firerod":
+                self.items.remove("Firerod")
+                self.equipped_items.append("Firerod")
+                print ("You have successfully equipped the firerod.")
+
         else:
             print ("You dont have that in your inventory.")
             pass
-
 class Field:
     def __init__(self, enemies):
         self.enemies = enemies
@@ -309,14 +332,17 @@ def fight(p, m):
         if enemies[0].is_dead():
             add_healthpotion_to_inventory(p, m)
             add_manapotion_to_inventory(p, m)
+            add_sword_to_inventory(p, m)
+            add_firerod_to_inventory(p, m)
+            add_thunderrod_to_inventory(p, m)
             p.all_xp = p.all_xp + enemies[0].xp
             p.level_up()
             enemies.remove(enemies[0])
         for i in enemies:
             block(p, m)
         try:
-            for i in enemies:
-                print (str(enemies[0].name) + " has " + str(enemies[0].hp) + " hp left.")
+            for i in range(len(enemies)):
+                print (str(enemies[i].name) + " has " + str(enemies[i].hp) + " hp left.")
         except IndexError:
             pass
         print ("You have " + str(p.hp) + " hp " + str(p.mana) + " mana left.")
@@ -368,30 +394,59 @@ def add_sword_to_inventory(p, m):
     else:
         pass
 
+def add_firerod_to_inventory(p, m):
+    rand = random.randint(0, 10)
+    if rand == 0:
+        if len(p.items) < 11:
+            p.items.append("Firerod")
+            print ("It dropped a Firerod.")
+        if len(p.items) == 10:
+            print ("Your inventory is full.")
+    else:
+        pass
+
+def add_thunderrod_to_inventory(p, m):
+    rand = random.randint(0, 10)
+    if rand == 0:
+        if len(p.items) < 11:
+            p.items.append("Thunderrod")
+            print ("It dropped a Thunderrod.")
+        if len(p.items) == 10:
+            print ("Your inventory is full.")
+    else:
+        pass
 def attack(p, m):
     enemies = m.get_enemies()
-    if not p.equipped_items:
-        answer1 = input ("With what do you want to attack (auto_attack) ")
-        if answer1 == "auto_attack":
-            enemies[0].get_hit(p.ad)
-        else:
-            print ("That's not a correct input.")
-            pass
-        
-    for i in range(len(p.equipped_items)): 
-        if p.equipped_items[i] == "Firerod":
-            answer2 = input ("With what do you want to attack? (auto_attack, firestorm) ")
-            if answer2 == "firestorm":  
+    answer = input ("With what do you want to attack? (auto_attack, firestorm, thunderstorm) ")
+    if answer == "auto_attack":
+        enemies[0].get_hit(p.ad)
+    elif answer == "firestorm":
+        for i in range(len(p.equipped_items)):    
+            if p.equipped_items[i] == "Firerod":   
                 if p.mana >= 10:
                     enemies[0].get_hit_by_firestorm(p.ad)
                     p.mana = p.mana - 10
                 else:
-                    print("You don't have enough mana. ")
-            elif answer2 == "auto_attack":
-                enemies[0].get_hit(p.ad)
+                    print("You don't have enough mana.")          
             else:
-                print ("That's not a correct input. ")
+                print ("You don't have a firerod equipped.")
+               
+
+    elif answer == "thunderstorm":
+        for i in range(len(p.equipped_items)):
+            if p.equipped_items[i] == "Thunderrod":       
+                if p.mana >= 10:
+                    enemies[0].get_hit_by_thunderstorm(p.ad)
+                    p.mana = p.mana - 10
+                else:
+                    print ("You don't have enough mana.")
+                    pass
+            else:
+                print ("You don't have a thunderrod equipped.")
                 pass
+    else:
+        print ("That's not a correct input.")
+        pass
 
 def block(p, m):
     rand = random.randint(0, 1)
@@ -399,10 +454,11 @@ def block(p, m):
     answer = input ("Do you want to block? ")
     if answer == "yes":
         if rand == 0:
-            print("You blocked all incoming attacks.")
-        else:
+            print("You blocked the incoming attack.")
+            pass
+        elif rand == 1:
+            print ("You are Nobb and fail to block. ")
             for i in enemies:
-                print ("You are Nobb and fail to block. ")
                 p.get_hit(i.ad)
     elif answer == "no":
         for i in enemies:
