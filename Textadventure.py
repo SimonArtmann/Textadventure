@@ -1,4 +1,4 @@
-#Thunderrod equip bug fixen, block bugs fixen 
+#bei best. Level best. Gegner 
 import random
 import ast
 
@@ -17,13 +17,14 @@ class ManaPotion(Item):
         self.regenerated_mana = regenerated_mana
 
 class Character:
-    def __init__(self, hp, ad, name, xp, defense, magic_defense):
+    def __init__(self, hp, ad, name, xp, defense, magic_defense, worth):
         self.hp = hp
         self.ad = ad
         self.name = name
         self.xp = xp
         self.defense = defense
         self.magic_defense = magic_defense
+        self.worth = worth
 
     def get_hit(self, ad):
         self.hp = self.hp + self.defense - ad
@@ -56,27 +57,28 @@ class Character:
 
 class Goblin(Character):
     def __init__(self):
-        Character.__init__(self, 100, 10, "Goblin", 10, 0, 0)
+        Character.__init__(self, 100, 10, "Goblin", 10, 0, 0, 5)
 
 class Ork(Character):
     def __init__(self):
-        Character.__init__(self, 300, 30, "Ork", 30, 10, 0)
+        Character.__init__(self, 300, 30, "Ork", 30, 10, 0, 10)
 
 class Giant(Character):
     def __init__(self):
-        Character.__init__(self, 500, 50, "Giant", 50, 30, 0)
+        Character.__init__(self, 500, 50, "Giant", 50, 30, 0, 15)
 
 class Chunk(Character):
     def __init__(self):
-        Character.__init__(self, 1000, 30, "Chunk", 70, 50, 10)
+        Character.__init__(self, 1000, 30, "Chunk", 70, 50, 10, 20)
 
 class Player(Character):
     items = []
     equipped_items = []
     required_xp = 100
     level = 0
+    money = 0
     def __init__(self, name, hp, ad, mana, all_xp):
-        Character.__init__(self, hp, ad, name, 0, 0, 0)
+        Character.__init__(self, hp, ad, name, 0, 0, 0, 0)
         self.max_hp = hp
         self.mana = mana
         self.max_mana = mana
@@ -204,7 +206,7 @@ class Player(Character):
                     if self.items[i] == "Sword" or self.items[0] == "Sword":
                         print ("You have succesfully equipped the sword.")
                         self.items.remove("Sword")
-                        self.ad = 100
+                        self.ad = 150
             elif self.items[0] == "Sword":
                 print ("You have successfully equipped the sword.")
                 self.items.remove("Sword")
@@ -237,6 +239,10 @@ class Player(Character):
         else:
             print ("You dont have that in your inventory.")
             pass
+    
+    def show_money(self):
+        print ("You have " + str(self.money) + " money.")
+
 class Field:
     def __init__(self, enemies):
         self.enemies = enemies
@@ -260,10 +266,12 @@ class Field:
             return Field([Goblin(), Ork()])
         if rand == 3:
             return Field([Giant()])
-        if rand == 4:
-            return Field([Goblin(), Giant()])
-        if rand == 5:
-            return Field([Chunk()])
+        if p.level >= 1:    
+            if rand == 4:
+                return Field([Goblin(), Giant()])
+        elif p.level >= 2:
+            if rand == 5:
+                return Field([Chunk()])
 
 class Map:
     def __init__(self, width, height):
@@ -277,10 +285,13 @@ class Map:
             self.state.append(fields)
 
     def print_state(self):
-        self.state[self.x][self.y].print_state()
+        try:    
+            self.state[self.x][self.y].print_state()
+        except AttributeError:
+            print ("Something went wrong but you still moved.")
 
     def get_enemies(self):
-        return self.state[self.x] [self.y].enemies
+        return self.state[self.x][self.y].enemies
 
     def forward (self):
         if self.x == len(self.state) - 1:
@@ -335,8 +346,9 @@ def fight(p, m):
             add_sword_to_inventory(p, m)
             add_firerod_to_inventory(p, m)
             add_thunderrod_to_inventory(p, m)
-            p.all_xp = p.all_xp + enemies[0].xp
+            p.all_xp += enemies[0].xp
             p.level_up()
+            p.money += enemies[0].worth
             enemies.remove(enemies[0])
         for i in enemies:
             block(p, m)
@@ -384,7 +396,7 @@ def add_manapotion_to_inventory(p, m):
         pass
 
 def add_sword_to_inventory(p, m):
-    rand = random.randint(0, 10)
+    rand = random.randint(0, 5)
     if rand == 0:
         if len(p.items) < 11:
             p.items.append("Sword")
@@ -486,6 +498,9 @@ def show_stats(p, m):
 def equip(p, m):
     p.equip()
 
+def show_money(p, m):
+    p.show_money()
+
 Commands = {
     "help": print_help,
     "quit": quit_game,
@@ -503,11 +518,12 @@ Commands = {
     "load": load,
     "show_stats": show_stats,
     "equip": equip,
+    "show_money": show_money,
 }
 
 if __name__=="__main__":
     name = input ("Enter your name: ")
-    p = Player (name, 500, 50, 100, 0)
+    p = Player (name, 500, 100, 100, 0)
     map = Map (6, 6)
     print ("(type help to list the commands available)\n")
     while True:
