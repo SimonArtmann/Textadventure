@@ -152,9 +152,11 @@ class Player(Character):
             print ("You have reached level " + str(self.level) + "!")
             upgrade = input('Which stat do you want to upgrade? (attack, hp, mana, defense) ')
             if upgrade == 'mana':
+                self.max_mana = self.max_mana + manarand
                 self.mana = self.mana + manarand
             elif upgrade == 'hp':
                 self.max_hp = self.max_hp + hprand
+                self.hp = self.hp + hprand
             elif upgrade == 'attack':
                 self.ad = self.ad + attackrand
             elif upgrade == 'defense':
