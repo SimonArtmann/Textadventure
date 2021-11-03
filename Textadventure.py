@@ -71,6 +71,11 @@ class Chunk(Character):
     def __init__(self):
         Character.__init__(self, 1000, 30, "Chunk", 70, 50, 10, 20)
 
+class BigChunk(Character):
+    def __init__(self):
+        Character.__init__(self, 3000, 70, "Big Chunk", 200, 70, 30, 150)
+
+
 class Player(Character):
     items = []
     equipped_items = []
@@ -286,11 +291,8 @@ class Map:
                 fields.append(Field.gen_random(self))
             self.state.append(fields)
 
-    def print_state(self):
-        try:    
-            self.state[self.x][self.y].print_state()
-        except AttributeError:
-            print ("Something went wrong but you still moved.")
+    def print_state(self):  
+        self.state[self.x][self.y].print_state()
 
     def get_enemies(self):
         return self.state[self.x][self.y].enemies
