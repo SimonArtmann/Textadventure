@@ -249,6 +249,9 @@ class Player(Character):
     def show_money(self):
         print ("You have " + str(self.money) + " money.")
 
+    def plus_1_lvl(self):
+        self.level = self.level + 1
+
 class Field:
     def __init__(self, enemies):
         self.enemies = enemies
@@ -271,12 +274,10 @@ class Field:
         if rand == 2:
             return Field([Goblin(), Ork()])
         if rand == 3:
-            return Field([Giant()])
-        if p.level >= 1:    
-            if rand == 4:
+            return Field([Giant()])    
+        if rand == 4:
                 return Field([Goblin(), Giant()])
-        elif p.level >= 2:
-            if rand == 5:
+        if rand == 5:
                 return Field([Chunk()])
 
 class Map:
@@ -507,6 +508,9 @@ def equip(p, m):
 def show_money(p, m):
     p.show_money()
 
+def plus_1_lvl(p, m):
+    p.plus_1_lvl()
+
 Commands = {
     "help": print_help,
     "quit": quit_game,
@@ -525,6 +529,7 @@ Commands = {
     "show_stats": show_stats,
     "equip": equip,
     "show_money": show_money,
+    "plus_1_lvl": plus_1_lvl,
 }
 
 if __name__=="__main__":
